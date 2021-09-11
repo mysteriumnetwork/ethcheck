@@ -44,14 +44,9 @@ func run() int {
 	ctx, cl := context.WithTimeout(context.Background(), *totalTimeout)
 	defer cl()
 
-	err = probe.LagProbe(ctx, rpcClient, *reqTimeout, *lagTreshold)
+	err = probe.ComplexProbe(ctx, rpcClient, *reqTimeout, *lagTreshold)
 	if err != nil {
-		log.Fatalf("Lag probe failed: %v", err)
-	}
-
-	err = probe.RandomProbe(ctx, rpcClient, *reqTimeout)
-	if err != nil {
-		log.Fatalf("Random probe failed: %v", err)
+		log.Fatalf("complex probe failed: %v", err)
 	}
 
 	return 0
