@@ -1,9 +1,9 @@
 package probe
 
 import (
-	"crypto/rand"
-	"fmt"
 	"strconv"
+
+	"github.com/mysteriumnetwork/ethcheck/util"
 )
 
 type BlockNumberResult uint64
@@ -37,14 +37,13 @@ type RandomEthCallParamObject struct {
 }
 
 func NewRandomEthCallParamObject() (*RandomEthCallParamObject, error) {
-	buf := make([]byte, 20)
-	_, err := rand.Read(buf)
+	randomHexString, err := util.RandomHexString(20)
 	if err != nil {
 		return nil, err
 	}
 	return &RandomEthCallParamObject{
 		Data: "0xe617aaac0000000000000000000000007cadbf6d95c81754b84057f2eb634acc2fd8e4330000000000000000000000007119442c7e627438deb0ec59291e31378f88dd06",
 		From: "0x0000000000000000000000000000000000000000",
-		To:   fmt.Sprintf("0x%x", buf),
+		To:   "0x" + randomHexString,
 	}, nil
 }

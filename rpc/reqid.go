@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/mysteriumnetwork/ethcheck/util"
 )
 
 const (
@@ -95,12 +95,12 @@ func RequestIDFromString(id string) RequestID {
 }
 
 func NewUniqueRequestID() (RequestID, error) {
-	reqUUID, err := uuid.NewRandom()
+	reqID, err := util.RandomHexString(16)
 	if err != nil {
 		return RequestID{}, err
 	}
 
 	return RequestID{
-		value: reqUUID.String(),
+		value: reqID,
 	}, nil
 }
