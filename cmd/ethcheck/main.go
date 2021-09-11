@@ -5,10 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
+	"net/http"
 	"net/url"
 	"os"
 	"time"
 
+	fixedDialer "github.com/mysteriumnetwork/ethcheck/dialer"
 	"github.com/mysteriumnetwork/ethcheck/probe"
 	"github.com/mysteriumnetwork/ethcheck/rpc"
 )
@@ -16,11 +19,13 @@ import (
 var version = "undefined"
 
 var (
-	endpoint     = flag.String("url", "", "RPC endpoint URL")
-	reqTimeout   = flag.Duration("req-timeout", 5*time.Second, "timeout for single request")
-	totalTimeout = flag.Duration("total-timeout", 20*time.Second, "whole operation timeout")
-	lagTreshold  = flag.Duration("lag", 1*time.Minute, "allowed lag treshold")
-	showVersion  = flag.Bool("version", false, "show program version and exit")
+	endpoint        = flag.String("url", "", "RPC endpoint URL")
+	reqTimeout      = flag.Duration("req-timeout", 5*time.Second, "timeout for single request")
+	totalTimeout    = flag.Duration("total-timeout", 20*time.Second, "whole operation timeout")
+	lagTreshold     = flag.Duration("lag", 1*time.Minute, "allowed lag treshold")
+	showVersion     = flag.Bool("version", false, "show program version and exit")
+	addressOverride = flag.String("address-override", "", "force remote host address")
+	portOverride    = flag.String("port-override", "", "force remote host port")
 )
 
 func run() int {
@@ -39,7 +44,19 @@ func run() int {
 		log.Fatalf("bad URL specified: %v", err)
 	}
 
-	rpcClient := rpc.NewHTTPRPCClient(parsedURL, nil)
+	var dialer fixedDialer.ContextDialer
+	dialer = &net.Dialer{}
+	dialer = fixedDialer.NewFixedDialer(*addressOverride, *portOverride, dialer)
+
+	httpTransport := &http.Transport{
+		DialContext:       dialer.DialContext,
+		ForceAttemptHTTP2: true,
+	}
+
+	httpClient := rpc.NewDefaultHTTPClient()
+	httpClient.Transport = httpTransport
+
+	rpcClient := rpc.NewHTTPRPCClient(parsedURL, httpClient)
 
 	ctx, cl := context.WithTimeout(context.Background(), *totalTimeout)
 	defer cl()
