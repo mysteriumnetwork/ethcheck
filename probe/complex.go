@@ -9,14 +9,32 @@ import (
 )
 
 func ComplexProbe(ctx context.Context, rpcClient rpc.Client, reqTimeout, lagTreshold time.Duration) error {
-	err := LagProbe(ctx, rpcClient, reqTimeout, lagTreshold)
-	if err != nil {
-		return fmt.Errorf("lag probe failed: %w", err)
-	}
+	ctx, cl := context.WithCancel(ctx)
+	defer cl()
 
-	err = RandomProbe(ctx, rpcClient, reqTimeout)
-	if err != nil {
-		return fmt.Errorf("random probe failed: %w", err)
+	responses := make(chan error)
+
+	go func() {
+		err := LagProbe(ctx, rpcClient, reqTimeout, lagTreshold)
+		if err != nil {
+			err = fmt.Errorf("lag probe failed: %w", err)
+		}
+		responses <- err
+	}()
+
+	go func() {
+		err := RandomProbe(ctx, rpcClient, reqTimeout)
+		if err != nil {
+			err = fmt.Errorf("random probe failed: %w", err)
+		}
+		responses <- err
+	}()
+
+	for i := 0; i < 2; i++ {
+		err := <-responses
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
