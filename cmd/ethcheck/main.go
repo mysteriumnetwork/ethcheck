@@ -49,6 +49,11 @@ func run() int {
 		log.Fatalf("Lag probe failed: %v", err)
 	}
 
+	err = probe.RandomProbe(ctx, rpcClient, *reqTimeout)
+	if err != nil {
+		log.Fatalf("Random probe failed: %v", err)
+	}
+
 	return 0
 }
 

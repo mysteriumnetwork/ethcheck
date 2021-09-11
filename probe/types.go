@@ -1,6 +1,8 @@
 package probe
 
 import (
+	"crypto/rand"
+	"fmt"
 	"strconv"
 )
 
@@ -28,3 +30,21 @@ type ShortBlockInfo struct {
 	Timestamp BlockNumberResult `json:"timestamp"`
 }
 
+type RandomEthCallParamObject struct {
+	Data string `json:"data"`
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+func NewRandomEthCallParamObject() (*RandomEthCallParamObject, error) {
+	buf := make([]byte, 20)
+	_, err := rand.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	return &RandomEthCallParamObject{
+		Data: "0xe617aaac0000000000000000000000007cadbf6d95c81754b84057f2eb634acc2fd8e4330000000000000000000000007119442c7e627438deb0ec59291e31378f88dd06",
+		From: "0x0000000000000000000000000000000000000000",
+		To: fmt.Sprintf("0x%x", buf),
+	}, nil
+}
