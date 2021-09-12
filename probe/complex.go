@@ -30,12 +30,21 @@ func ComplexProbe(ctx context.Context, rpcClient rpc.Client, reqTimeout, lagTres
 		responses <- err
 	}()
 
-	for i := 0; i < 2; i++ {
-		err := <-responses
-		if err != nil {
-			return err
-		}
-	}
+	firstError := make(chan error)
 
-	return nil
+	go func() {
+		var errorSent bool
+		for i := 0; i < 2; i++ {
+			err := <-responses
+			if !errorSent && err != nil {
+				errorSent = true
+				firstError <- err
+			}
+		}
+		if !errorSent {
+			firstError <- nil
+		}
+	}()
+
+	return <-firstError
 }
