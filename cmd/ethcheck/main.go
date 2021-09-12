@@ -63,7 +63,8 @@ func run() int {
 
 	err = probe.ComplexProbe(ctx, rpcClient, *reqTimeout, *lagTreshold)
 	if err != nil {
-		log.Fatalf("complex probe failed: %v", err)
+		log.Printf("complex probe failed: %v", err)
+		return 1
 	}
 
 	return 0
