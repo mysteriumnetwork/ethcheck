@@ -45,6 +45,10 @@ func run() int {
 	if err != nil {
 		log.Fatalf("bad URL specified: %v", err)
 	}
+	chompedURL := url.URL{
+		Scheme: parsedURL.Scheme,
+		Host: parsedURL.Host,
+	}
 
 	var dialer fixedDialer.ContextDialer
 	dialer = &net.Dialer{}
@@ -65,7 +69,7 @@ func run() int {
 
 	err = probe.ComplexProbe(ctx, rpcClient, *reqTimeout, *lagTreshold, *blockTolerance)
 	if err != nil {
-		log.Printf("complex probe failed: %v", err)
+		log.Printf("origin %s probe failed: %v", chompedURL.String(), err)
 		return 1
 	}
 
@@ -73,6 +77,6 @@ func run() int {
 }
 
 func main() {
-	log.Default().SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Llongfile)
+	log.Default().SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 	os.Exit(run())
 }
