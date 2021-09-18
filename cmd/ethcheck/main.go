@@ -26,6 +26,8 @@ var (
 	showVersion     = flag.Bool("version", false, "show program version and exit")
 	addressOverride = flag.String("address-override", "", "force remote host address")
 	portOverride    = flag.String("port-override", "", "force remote host port")
+	blockTolerance  = flag.Int("block-tolerance", -1, "request metainfo for "+
+		"latest_block - block_tolerance or -1 for symbolic name \"latest\"")
 )
 
 func run() int {
@@ -61,7 +63,7 @@ func run() int {
 	ctx, cl := context.WithTimeout(context.Background(), *totalTimeout)
 	defer cl()
 
-	err = probe.ComplexProbe(ctx, rpcClient, *reqTimeout, *lagTreshold)
+	err = probe.ComplexProbe(ctx, rpcClient, *reqTimeout, *lagTreshold, *blockTolerance)
 	if err != nil {
 		log.Printf("complex probe failed: %v", err)
 		return 1

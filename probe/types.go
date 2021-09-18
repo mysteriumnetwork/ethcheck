@@ -26,7 +26,12 @@ func (r BlockNumberResult) MarshalText() ([]byte, error) {
 	return []byte(r.String()), nil
 }
 
+func (r BlockNumberResult) Sub(shift int) BlockNumberResult {
+	return BlockNumberResult(uint64(r) - uint64(shift))
+}
+
 type ShortBlockInfo struct {
+	Number    BlockNumberResult `json:"number"`
 	Timestamp BlockNumberResult `json:"timestamp"`
 }
 

@@ -8,14 +8,14 @@ import (
 	"github.com/mysteriumnetwork/ethcheck/rpc"
 )
 
-func ComplexProbe(ctx context.Context, rpcClient rpc.Client, reqTimeout, lagTreshold time.Duration) error {
+func ComplexProbe(ctx context.Context, rpcClient rpc.Client, reqTimeout, lagTreshold time.Duration, blockTolerance int) error {
 	ctx, cl := context.WithCancel(ctx)
 	defer cl()
 
 	responses := make(chan error)
 
 	go func() {
-		err := LagProbe(ctx, rpcClient, reqTimeout, lagTreshold)
+		err := LagProbe(ctx, rpcClient, reqTimeout, lagTreshold, blockTolerance)
 		if err != nil {
 			err = fmt.Errorf("lag probe failed: %w", err)
 		}
