@@ -28,6 +28,8 @@ $ ethcheck -h
 Usage of ethcheck:
   -address-override string
     	force remote host address
+  -block-tolerance int
+    	request metainfo for latest_block - block_tolerance or -1 for symbolic name "latest" (default -1)
   -lag duration
     	allowed lag treshold (default 1m0s)
   -port-override string
